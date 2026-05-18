@@ -43,13 +43,14 @@ public static class ImageHandler
 
         img.Mutate(x => x.AutoOrient());
 
-        // Resize mantendo proporção
-        img.Mutate(x => x.Resize(new ResizeOptions
+        if (img.Width > maxDimension || img.Height > maxDimension)
         {
-            Size = new SixLabors.ImageSharp.Size(maxDimension, maxDimension * 3 / 4),
-            Mode = ResizeMode.Pad,
-            PadColor = SixLabors.ImageSharp.Color.White
-        }));
+            img.Mutate(x => x.Resize(new ResizeOptions
+            {
+                Size = new SixLabors.ImageSharp.Size(maxDimension, maxDimension),
+                Mode = ResizeMode.Max
+            }));
+        }
         var quality = 90;
         double sizeKb;
 
