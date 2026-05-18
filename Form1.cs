@@ -1,6 +1,7 @@
 namespace ImgPad;
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -14,6 +15,7 @@ public class Form1 : Form
     private Label lblSubtitulo;
     private RichTextBox txtLog;
     private ProgressBar progressBar;
+    private StyledButton btnAbrirPasta;
 
     // Paleta
     private readonly Color BG      = Color.FromArgb(18, 18, 20);
@@ -110,6 +112,19 @@ public class Form1 : Form
         linha2.Location = new Point(24, 228);
         linha2.Size = new Size(460, 1);
 
+        //botao abrir pasta
+
+        btnAbrirPasta = new StyledButton();
+        btnAbrirPasta.Text = "Abrir Pasta";
+        btnAbrirPasta.Location = new Point(24, 160);
+        btnAbrirPasta.Size = new Size(120, 36);
+        btnAbrirPasta.NormalColor = SURFACE;
+        btnAbrirPasta.HoverColor = Color.FromArgb(45, 45, 55);
+        btnAbrirPasta.BorderColor = BORDER;
+        btnAbrirPasta.TextColor = TEXT;
+        btnAbrirPasta.Visible = false;
+        btnAbrirPasta.Click += BtnAbrirPasta_Click;
+
         // Log
         txtLog = new RichTextBox();
         txtLog.Location = new Point(24, 240);
@@ -126,7 +141,8 @@ public class Form1 : Form
             lblTitulo, lblSubtitulo, linha,
             lblPasta, txtPasta,
             btnSelecionar, btnIniciar,
-            progressBar, linha2, txtLog
+            progressBar, linha2, txtLog,
+            btnAbrirPasta
         });
     }
 
@@ -164,14 +180,24 @@ public class Form1 : Form
     private void BtnIniciar_Click(object? sender, EventArgs e)
     {
         btnIniciar.Enabled = false;
+        btnAbrirPasta.Visible = false;
         txtLog.Clear();
         progressBar.Value = 0;
 
         Task.Run(() =>
         {
             ImageHandler.ProcessarPasta(txtPasta.Text, Log, SetProgresso);
-            Invoke(() => btnIniciar.Enabled = true);
+            Invoke(() =>
+            {
+                btnIniciar.Enabled = true;
+                btnAbrirPasta.Visible = true;
+            });
         });
+    }
+
+    private void BtnAbrirPasta_Click(object? sender, EventArgs e)
+    {
+        Process.Start("explorer.exe", Path.Combine(txtPasta.Text, "tratadas"));
     }
 
     protected override void Dispose(bool disposing)
@@ -181,6 +207,7 @@ public class Form1 : Form
             txtPasta?.Dispose();
             btnSelecionar?.Dispose();
             btnIniciar?.Dispose();
+            btnAbrirPasta?.Dispose();
             lblTitulo?.Dispose();
             lblSubtitulo?.Dispose();
             txtLog?.Dispose();
